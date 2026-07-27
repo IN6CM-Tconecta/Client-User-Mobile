@@ -1,60 +1,119 @@
-import React from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import axios from 'axios';
+import { Bus, MapPin } from 'lucide-react-native';
+import { API_URLS } from '../api/config';
 
 export const ExploreScreen = () => {
-    const systems = [
-        {
-            id: '1',
-            name: 'Transmetro Troncal',
-            fare: 'Q1.00',
-            color: '#1801A9',
-            description: 'Red principal de autobuses articulados en carriles exclusivos.'
-        },
-        {
-            id: '2',
-            name: 'TuBus Alimentador',
-            fare: 'Q1.00',
-            color: '#4CB500',
-            description: 'Autobuses de barrio que conectan con estaciones troncales.'
-        },
-        {
-            id: '3',
-            name: 'Transurbano Periférico',
-            fare: 'Q2.00',
-            color: '#2563EB',
-            description: 'Sistema interurbano complementario de largo alcance.'
-        }
-    ];
+    const [activeTab, setActiveTab] = useState("roads");
+    const [roads, setRoads] = useState([]);
+    const [stations, setStations] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const [rRes, sRes] = await Promise.allSettled([
+                    axios.get(`${API_URLS.ADMIN}/roads/all`),
+                    axios.get(`${API_URLS.ADMIN}/stations/all`),
+                ]);
+
+                if (rRes.status === "fulfilled") setRoads(rRes.value.data?.data || []);
+                if (sRes.status === "fulfilled") setStations(sRes.value.data?.data || []);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            <Text style={styles.title}>Infraestructura T-Conecta</Text>
-            <Text style={styles.subtitle}>Red Integrada de Transporte Público</Text>
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <Text style={styles.title}>Red Integrada de Transporte</Text>
+                <Text style={styles.subtitle}>Explora las líneas de transporte, frecuencias y estaciones activas en la metrópoli.</Text>
+            </View>
 
-            {systems.map((item) => (
-                <View key={item.id} style={[styles.card, { borderLeftColor: item.color }]}>
-                    <View style={styles.cardHeader}>
-                        <Text style={styles.cardTitle}>{item.name}</Text>
-                        <View style={[styles.badge, { backgroundColor: item.color }]}>
-                            <Text style={styles.badgeText}>{item.fare}</Text>
-                        </View>
-                    </View>
-                    <Text style={styles.cardDesc}>{item.description}</Text>
+            <View style={styles.tabContainer}>
+                <TouchableOpacity
+                    style={[styles.tab, activeTab === 'roads' && styles.tabActive]}
+                    onPress={() => setActiveTab('roads')}
+                >
+                    <Bus size={18} color={activeTab === 'roads' ? '#1801A9' : '#94A3B8'} />
+                    <Text style={[styles.tabText, activeTab === 'roads' && styles.tabTextActive]}>Líneas ({roads.length})</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.tab, activeTab === 'stations' && styles.tabActive]}
+                    onPress={() => setActiveTab('stations')}
+                >
+                    <MapPin size={18} color={activeTab === 'stations' ? '#1801A9' : '#94A3B8'} />
+                    <Text style={[styles.tabText, activeTab === 'stations' && styles.tabTextActive]}>Estaciones ({stations.length})</Text>
+                </TouchableOpacity>
+            </View>
+
+            {loading ? (
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#1801A9" />
+                    <Text style={styles.loaderText}>Cargando red de transporte...</Text>
                 </View>
-            ))}
-        </ScrollView>
+            ) : (
+                <ScrollView style={styles.listContainer} contentContainerStyle={styles.listContent}>
+                    {activeTab === 'roads' ? (
+                        roads.map((road) => (
+                            <View key={road._id || road.routeCode} style={styles.card}>
+                                <View style={styles.cardHeader}>
+                                    <Text style={styles.cardCode}>{road.routeCode}</Text>
+                                    <View style={styles.badge}>
+                                        <Text style={styles.badgeText}>{road.typeRoad}</Text>
+                                    </View>
+                                </View>
+                                <Text style={styles.cardName}>{road.name}</Text>
+                                <Text style={styles.cardDesc}>Puntos de trayecto: {road.path?.coordinates?.length || 0} coordenadas</Text>
+                            </View>
+                        ))
+                    ) : (
+                        stations.map((st) => (
+                            <View key={st._id || st.stationCode} style={styles.card}>
+                                <Text style={styles.stCode}>{st.stationCode}</Text>
+                                <Text style={styles.cardName}>{st.name}</Text>
+                                <View style={styles.stBadge}>
+                                    <Text style={styles.stBadgeText}>{st.typeStation}</Text>
+                                </View>
+                            </View>
+                        ))
+                    )}
+                </ScrollView>
+            )}
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F8FAFC' },
-    content: { padding: 16 },
+    header: { padding: 16, paddingBottom: 10 },
     title: { fontSize: 22, fontWeight: '900', color: '#1801A9', marginBottom: 4 },
-    subtitle: { fontSize: 13, fontWeight: '600', color: '#64748B', marginBottom: 20 },
-    card: { backgroundColor: '#FFFFFF', padding: 18, borderRadius: 14, marginBottom: 14, borderWidth: 1, borderColor: '#E2E8F0', borderLeftWidth: 6 },
+    subtitle: { fontSize: 13, color: '#64748B', lineHeight: 18 },
+    tabContainer: { flexDirection: 'row', borderBottomWidth: 1, borderColor: '#E2E8F0', paddingHorizontal: 16 },
+    tab: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 14, borderBottomWidth: 2, borderColor: 'transparent' },
+    tabActive: { borderColor: '#10B981' },
+    tabText: { fontSize: 13, fontWeight: '700', color: '#94A3B8' },
+    tabTextActive: { color: '#1801A9' },
+    loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    loaderText: { marginTop: 12, fontSize: 13, color: '#64748B' },
+    listContainer: { flex: 1 },
+    listContent: { padding: 16, gap: 12 },
+    card: { backgroundColor: '#FFF', borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#E2E8F0', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2 },
     cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-    cardTitle: { fontSize: 16, fontWeight: '800', color: '#0F172A' },
-    badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-    badgeText: { color: '#FFFFFF', fontSize: 12, fontWeight: '900' },
-    cardDesc: { fontSize: 13, color: '#475569', leading: 18 }
+    cardCode: { fontSize: 18, fontWeight: '900', color: '#1801A9' },
+    badge: { backgroundColor: '#DCFCE7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
+    badgeText: { fontSize: 10, fontWeight: '800', color: '#166534' },
+    cardName: { fontSize: 14, fontWeight: '800', color: '#0F172A', marginBottom: 4 },
+    cardDesc: { fontSize: 12, color: '#64748B' },
+    stCode: { fontSize: 11, fontWeight: '800', color: '#1801A9', fontFamily: 'monospace', marginBottom: 6 },
+    stBadge: { backgroundColor: '#F1F5F9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, alignSelf: 'flex-start', marginTop: 4 },
+    stBadgeText: { fontSize: 10, fontWeight: '800', color: '#334155' }
 });
