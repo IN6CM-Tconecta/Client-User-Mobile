@@ -7,8 +7,28 @@ import { useWalletStore } from './walletStore';
 export const usePlannerStore = create((set, get) => ({
     history: [],
     loading: false,
+    roads: [],
+    stations: [],
 
-    planTrip: async (originLat, originLon, destLat, destLon, systemType = 'TRANSMETRO') => {
+    fetchMapData: async () => {
+        try {
+            set({ loading: true });
+            const [stRes, rdRes] = await Promise.all([
+                axios.get(`${API_URLS.ADMIN}/stations/all`, { params: { status: 'ACTIVE' } }),
+                axios.get(`${API_URLS.ADMIN}/roads/all`, { params: { status: 'ACTIVE' } })
+            ]);
+            set({
+                stations: stRes.data?.data || [],
+                roads: rdRes.data?.data || [],
+                loading: false
+            });
+        } catch (error) {
+            console.error('Error fetching map data:', error.message);
+            set({ loading: false });
+        }
+    },
+
+    planTrip: async (originLat, originLon, destLat, destLon, systemType = 'TRANSMETRO', itinerary = '', originName = '', destName = '', estimatedTime = 0, distanceMeters = 0) => {
         try {
             set({ loading: true });
             const token = useAuthStore.getState().token;
@@ -20,7 +40,12 @@ export const usePlannerStore = create((set, get) => ({
                     originLon: parseFloat(originLon),
                     destLat: parseFloat(destLat),
                     destLon: parseFloat(destLon),
-                    systemType
+                    systemType,
+                    itinerary,
+                    originName,
+                    destName,
+                    estimatedTime,
+                    distanceMeters
                 },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -30,7 +55,7 @@ export const usePlannerStore = create((set, get) => ({
             await get().fetchHistory();
 
             set({ loading: false });
-            return { success: true, data: response.data?.data, warning: response.data?.warning };
+            return { success: true, data: response.data?.data, warning: response.data?.warning, message: response.data?.message };
         } catch (error) {
             set({ loading: false });
             const message = error.response?.data?.message || 'Error al planificar el viaje';
