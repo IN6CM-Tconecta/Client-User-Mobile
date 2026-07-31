@@ -13,9 +13,12 @@ export const usePlannerStore = create((set, get) => ({
     fetchMapData: async () => {
         try {
             set({ loading: true });
+            const token = useAuthStore.getState().token;
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
             const [stRes, rdRes] = await Promise.all([
-                axios.get(`${API_URLS.ADMIN}/stations/all`, { params: { status: 'ACTIVE' } }),
-                axios.get(`${API_URLS.ADMIN}/roads/all`, { params: { status: 'ACTIVE' } })
+                axios.get(`${API_URLS.ADMIN}/stations/all`, { params: { status: 'ACTIVE' }, headers }),
+                axios.get(`${API_URLS.ADMIN}/roads/all`, { params: { status: 'ACTIVE' }, headers })
             ]);
             set({
                 stations: stRes.data?.data || [],

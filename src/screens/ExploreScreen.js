@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator
 import axios from 'axios';
 import { Bus, MapPin } from 'lucide-react-native';
 import { API_URLS } from '../api/config';
+import { useAuthStore } from '../store/authStore';
 
 export const ExploreScreen = () => {
     const [activeTab, setActiveTab] = useState("roads");
@@ -14,9 +15,12 @@ export const ExploreScreen = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
+                const token = useAuthStore.getState().token;
+                const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
                 const [rRes, sRes] = await Promise.allSettled([
-                    axios.get(`${API_URLS.ADMIN}/roads/all`),
-                    axios.get(`${API_URLS.ADMIN}/stations/all`),
+                    axios.get(`${API_URLS.ADMIN}/roads/all`, { headers }),
+                    axios.get(`${API_URLS.ADMIN}/stations/all`, { headers }),
                 ]);
 
                 if (rRes.status === "fulfilled") setRoads(rRes.value.data?.data || []);
