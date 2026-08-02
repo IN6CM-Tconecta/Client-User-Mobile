@@ -9,4 +9,3 @@ yarn-error.*
 .env
 android/
 ios/
-pnpm-lock.yaml
