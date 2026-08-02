@@ -6,13 +6,16 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyCIh4Goe3qgb0HSI0bJQ8hSBGzswg9PIMw"
+      }
     },
     "android": {
       "package": "com.tconecta.mobile",
       "config": {
         "googleMaps": {
-          "apiKey": "API_KEY_DE_GOOGLE_MAPS"
+          "apiKey": "AIzaSyCIh4Goe3qgb0HSI0bJQ8hSBGzswg9PIMw"
         }
       }
     },

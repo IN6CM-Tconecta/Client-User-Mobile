@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useAuthStore } from '../store/authStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const createApiClient = (baseURL) => {
     const client = axios.create({
@@ -9,8 +9,8 @@ export const createApiClient = (baseURL) => {
     });
 
     client.interceptors.request.use(
-        (config) => {
-            const token = useAuthStore.getState().token;
+        async (config) => {
+            const token = await AsyncStorage.getItem('tconecta_mobile_token');
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             }
@@ -21,3 +21,4 @@ export const createApiClient = (baseURL) => {
 
     return client;
 };
+

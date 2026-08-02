@@ -3,12 +3,13 @@ import {
     StyleSheet, Text, View, ScrollView, TouchableOpacity,
     TextInput, ActivityIndicator, Alert, Dimensions, Platform
 } from 'react-native';
-let MapView, Marker, Polyline;
+let MapView, Marker, Polyline, PROVIDER_GOOGLE;
 if (Platform.OS !== 'web') {
     const maps = require('react-native-maps');
     MapView = maps.default;
     Marker = maps.Marker;
     Polyline = maps.Polyline;
+    PROVIDER_GOOGLE = maps.PROVIDER_GOOGLE;
 } else {
     MapView = ({ children, style }) => <View style={[style, { backgroundColor: '#e2e8f0', justifyContent: 'center', alignItems: 'center' }]}><Text style={{color: '#64748B'}}>Map is only available on Mobile</Text></View>;
     Marker = () => null;
@@ -376,6 +377,7 @@ export const PlannerScreen = () => {
                 <View style={styles.mapContainer}>
                     <MapView
                         ref={mapRef}
+                        provider={PROVIDER_GOOGLE}
                         style={styles.map}
                         initialRegion={{
                             latitude: 14.62,
