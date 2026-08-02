@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PlannerScreen } from '../features/planner/screens/PlannerScreen';
 import { WalletScreen } from '../features/wallet/screens/WalletScreen';
 import { ExploreScreen } from '../features/explore/screens/ExploreScreen';
@@ -10,21 +10,18 @@ import { ProfileScreen } from '../features/profile/screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
-export const MainTabs = ({ navigation }) => {
+export const MainTabs = () => {
+    const insets = useSafeAreaInsets();
+
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 headerStyle: { backgroundColor: '#1801A9' },
                 headerTintColor: '#FFFFFF',
                 headerTitleStyle: { fontWeight: '800', fontSize: 18 },
-                headerLeft: () => (
-                    <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={{ marginLeft: 16 }}>
-                        <Ionicons name="menu" size={28} color="#FFFFFF" />
-                    </TouchableOpacity>
-                ),
                 tabBarActiveTintColor: '#4CB500',
                 tabBarInactiveTintColor: '#94A3B8',
-                tabBarStyle: { height: 60, paddingBottom: 8, paddingTop: 8, backgroundColor: '#FFFFFF' },
+                tabBarStyle: { height: 60 + insets.bottom, paddingBottom: 8 + insets.bottom, paddingTop: 8, backgroundColor: '#FFFFFF' },
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName;
                     if (route.name === 'Planner') iconName = focused ? 'map' : 'map-outline';

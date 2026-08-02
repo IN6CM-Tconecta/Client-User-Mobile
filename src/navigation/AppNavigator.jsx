@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from '../shared/store/authStore';
 import { AuthStack } from './AuthStack';
-import { DrawerNavigator } from './DrawerNavigator';
+import { MainTabs } from './MainTabs';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,7 +20,7 @@ export const AppNavigator = () => {
                 {!isAuthenticated ? (
                     <Stack.Screen name="Auth" component={AuthStack} />
                 ) : (
-                    <Stack.Screen name="Main" component={DrawerNavigator} />
+                    <Stack.Screen name="Main" component={MainTabs} />
                 )}
             </Stack.Navigator>
         </NavigationContainer>
