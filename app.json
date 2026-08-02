@@ -3,6 +3,7 @@
     "name": "T-Conecta Ciudadano",
     "slug": "tconecta-client-user-mobile",
     "version": "1.0.0",
+    "icon": "./assets/tconecta.png",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "ios": {
