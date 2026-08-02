@@ -9,7 +9,12 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.tconecta.mobile"
+      "package": "com.tconecta.mobile",
+      "config": {
+        "googleMaps": {
+          "apiKey": "API_KEY_DE_GOOGLE_MAPS"
+        }
+      }
     },
     "plugins": [
       "expo-font"
