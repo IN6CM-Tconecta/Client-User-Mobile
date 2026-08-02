@@ -16,7 +16,7 @@ import { BarChart, LineChart } from 'react-native-chart-kit';
 const screenWidth = Dimensions.get('window').width;
 
 export const ProfileScreen = () => {
-    const { user } = useAuthStore();
+    const { user, logout } = useAuthStore();
     const [activeTab, setActiveTab] = useState('RESUMEN'); // 'RESUMEN' | 'USUARIO'
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -219,6 +219,11 @@ export const ProfileScreen = () => {
                             <Text style={styles.securityTitle}>Privacidad y Seguridad</Text>
                             <Text style={styles.securityText}>Tus datos están encriptados en los servidores de la municipalidad. El sistema T-Conecta utiliza autenticación avanzada JWT y algoritmos seguros para proteger tu identidad y las transacciones de tu billetera ciudadana.</Text>
                         </View>
+
+                        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+                            <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
+                            <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
+                        </TouchableOpacity>
                     </View>
                 )}
             </View>
@@ -292,5 +297,8 @@ const styles = StyleSheet.create({
 
     securityBox: { backgroundColor: '#EFF6FF', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#DBEAFE', marginTop: 12 },
     securityTitle: { fontSize: 13, fontWeight: '800', color: '#1801A9', marginBottom: 6 },
-    securityText: { fontSize: 12, color: '#475569', lineHeight: 18, textAlign: 'justify' }
+    securityText: { fontSize: 12, color: '#475569', lineHeight: 18, textAlign: 'justify' },
+
+    logoutButton: { backgroundColor: '#EF4444', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 14, borderRadius: 16, marginTop: 24, shadowColor: '#EF4444', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
+    logoutButtonText: { color: '#FFFFFF', fontSize: 15, fontWeight: '800', marginLeft: 8 }
 });
