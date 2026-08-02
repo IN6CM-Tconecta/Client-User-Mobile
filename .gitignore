@@ -6,3 +6,7 @@ yarn-debug.*
 yarn-error.*
 *.log
 .DS_Store
+.env
+android/
+ios/
+pnpm-lock.yaml
